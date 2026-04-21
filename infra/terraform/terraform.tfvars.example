@@ -1,0 +1,24 @@
+aws_region   = "us-east-1"
+project_name = "collabedit"
+environment  = "production"
+github_repo  = "Navneet072300/CollabEdit"
+
+# EKS
+eks_cluster_version = "1.30"
+node_instance_type  = "t3.medium"
+node_desired_size   = 2
+node_min_size       = 1
+node_max_size       = 5
+
+# RDS
+db_instance_class    = "db.t3.micro"
+db_name              = "collabedit"
+db_username          = "collabedit"
+db_password          = "CHANGE_TO_SECURE_PASSWORD"  # set via TF_VAR_db_password env var instead
+db_allocated_storage = 20
+
+# ElastiCache
+redis_node_type = "cache.t3.micro"
+
+# Optional — leave empty to skip ACM cert creation
+domain_name = ""
