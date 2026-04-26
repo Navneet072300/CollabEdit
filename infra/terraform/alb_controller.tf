@@ -1,6 +1,6 @@
 resource "helm_release" "aws_load_balancer_controller" {
   name       = "aws-load-balancer-controller"
-  repository = "https://aws.github.io/eks-charts"
+  repository = "oci://public.ecr.aws/eks"
   chart      = "aws-load-balancer-controller"
   namespace  = "kube-system"
   version    = "1.8.1"

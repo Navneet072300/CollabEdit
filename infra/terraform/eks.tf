@@ -29,22 +29,26 @@ module "eks" {
   # Managed node group
   eks_managed_node_groups = {
     main = {
-      name           = "${local.name_prefix}-ng"
+      name     = "main"
+      ami_type = "AL2_x86_64"
+
       instance_types = [var.node_instance_type]
 
       min_size     = var.node_min_size
       max_size     = var.node_max_size
       desired_size = var.node_desired_size
 
-      # Use latest EKS-optimised AMI
       use_latest_ami_release_version = true
+
+      # Short name keeps IAM role name_prefix within the 38-char AWS limit
+      iam_role_name            = "${var.project_name}-ng"
+      iam_role_use_name_prefix = false
 
       labels = {
         role        = "app"
         environment = var.environment
       }
 
-      # Nodes need access to pull from ECR and communicate with AWS APIs
       iam_role_additional_policies = {
         AmazonEC2ContainerRegistryReadOnly = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
       }
