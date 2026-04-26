@@ -1,87 +1,104 @@
 name: CI
 
 on:
-  pull_request:
-    branches: [main]
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
 
 jobs:
-  # ── Frontend lint & type-check ─────────────────────────────────────────────
-  frontend:
-    name: Frontend — type check & build
+  build-and-push:
+    name: Lint → Build → Push
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
     steps:
       - uses: actions/checkout@v4
 
+      # ── Frontend type check ──────────────────────────────────────────────
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
           cache: "npm"
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Install dependencies
+      - name: Frontend install
+        working-directory: frontend
         run: npm ci
 
-      - name: Type check
+      - name: Frontend type check
+        working-directory: frontend
         run: npx tsc --noEmit
 
-      - name: Build
-        run: npm run build
-        env:
-          NEXT_PUBLIC_API_URL: http://localhost:8000
-
-  # ── Backend lint ───────────────────────────────────────────────────────────
-  backend:
-    name: Backend — lint
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend
-    steps:
-      - uses: actions/checkout@v4
-
+      # ── Backend lint ─────────────────────────────────────────────────────
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: "pip"
           cache-dependency-path: backend/requirements.txt
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt ruff
+      - name: Backend lint
+        working-directory: backend
+        run: pip install ruff -q && ruff check .
 
-      - name: Lint with ruff
-        run: ruff check .
+      # ── Build & push images (main branch only) ───────────────────────────
+      - name: Configure AWS credentials
+        if: github.ref == 'refs/heads/main'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
 
-  # ── Docker build smoke test ────────────────────────────────────────────────
-  docker-build:
-    name: Docker build (smoke test)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+      - name: Login to ECR
+        if: github.ref == 'refs/heads/main'
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set image tag
+        if: github.ref == 'refs/heads/main'
+        id: tag
+        run: echo "tag=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
 
       - name: Set up Docker Buildx
+        if: github.ref == 'refs/heads/main'
         uses: docker/setup-buildx-action@v3
 
-      - name: Build backend image
+      - name: Build & push backend
+        if: github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v6
         with:
           context: ./backend
           file: ./backend/Dockerfile.prod
-          push: false
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          push: true
+          no-cache: true
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/collabedit/backend:${{ steps.tag.outputs.tag }}
+            ${{ steps.login-ecr.outputs.registry }}/collabedit/backend:latest
 
-      - name: Build frontend image
+      - name: Build & push frontend
+        if: github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v6
         with:
           context: ./frontend
           file: ./frontend/Dockerfile.prod
-          push: false
+          push: true
+          no-cache: true
           build-args: |
-            NEXT_PUBLIC_API_URL=http://placeholder
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+            NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/collabedit/frontend:${{ steps.tag.outputs.tag }}
+            ${{ steps.login-ecr.outputs.registry }}/collabedit/frontend:latest
+
+      - name: Print image tags
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "backend:  ${{ steps.login-ecr.outputs.registry }}/collabedit/backend:${{ steps.tag.outputs.tag }}"
+          echo "frontend: ${{ steps.login-ecr.outputs.registry }}/collabedit/frontend:${{ steps.tag.outputs.tag }}"
+          echo ""
+          echo "To deploy:"
+          echo "  kubectl rollout restart deployment/backend deployment/frontend -n collabedit"
