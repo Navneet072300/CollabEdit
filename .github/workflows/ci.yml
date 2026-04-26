@@ -88,8 +88,6 @@ jobs:
           file: ./frontend/Dockerfile.prod
           push: true
           no-cache: true
-          build-args: |
-            NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/collabedit/frontend:${{ steps.tag.outputs.tag }}
             ${{ steps.login-ecr.outputs.registry }}/collabedit/frontend:latest

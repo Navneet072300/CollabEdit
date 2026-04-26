@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: collabedit-config
+  namespace: collabedit
+data:
+  CORS_ORIGINS: '["http://k8s-collabed-collabed-802658f071-1632454566.us-east-1.elb.amazonaws.com"]'
+  NEXT_PUBLIC_API_URL: ""
