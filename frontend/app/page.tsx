@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { nanoid } from "nanoid";
 import { Code2, Users, Zap, ArrowRight, Plus } from "lucide-react";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API = process.env.NEXT_PUBLIC_API_URL || "";
 
 function getOrCreateUser(): { userId: string; userName: string } {
   if (typeof window === "undefined") return { userId: "", userName: "" };

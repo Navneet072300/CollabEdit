@@ -26,7 +26,8 @@ export function useWebSocket({
   useEffect(() => {
     if (!enabled || !roomId) return;
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL ||
+      (typeof window !== "undefined" ? window.location.origin : "http://localhost:8000");
     const wsBase = apiUrl.replace(/^http/, "ws");
     const url = `${wsBase}/ws/${roomId}?user_id=${encodeURIComponent(userId)}&user_name=${encodeURIComponent(userName)}`;
 

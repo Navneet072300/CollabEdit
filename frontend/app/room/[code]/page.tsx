@@ -13,7 +13,7 @@ import { useEditorStore } from "@/store/editorStore";
 import type { Room, FileInfo } from "@/lib/types";
 import { WEB_LANGUAGES, RUNNABLE_LANGUAGES } from "@/lib/utils/language";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API = process.env.NEXT_PUBLIC_API_URL || "";
 
 function getOrCreateUser() {
   if (typeof window === "undefined") return { userId: "", userName: "" };
