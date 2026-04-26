@@ -18,6 +18,7 @@ metadata:
     # WebSocket support for the collaborative editor
     alb.ingress.kubernetes.io/load-balancer-attributes: "idle_timeout.timeout_seconds=300"
 spec:
+  ingressClassName: alb
   rules:
     - http:
         paths:
