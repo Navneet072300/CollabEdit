@@ -55,7 +55,7 @@ export function WebPreview({ htmlContent, roomId }: Props) {
   );
 }
 
-function findFileByHref(files: { path: string; name: string }[], href: string) {
+function findFileByHref(files: { id: string; path: string; name: string }[], href: string) {
   // Strip leading ./ or /
   const clean = href.replace(/^\.?\//, "");
   return files.find(f => f.path === clean || f.name === clean || f.path.endsWith("/" + clean));
