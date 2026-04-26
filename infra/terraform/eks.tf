@@ -57,6 +57,21 @@ module "eks" {
 
   # Allow cluster creator admin access
   enable_cluster_creator_admin_permissions = true
+
+  # Grant GitHub Actions role cluster-admin so it can apply manifests
+  access_entries = {
+    github_actions = {
+      principal_arn = aws_iam_role.github_actions.arn
+      policy_associations = {
+        admin = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+          access_scope = {
+            type = "cluster"
+          }
+        }
+      }
+    }
+  }
 }
 
 # IRSA for EBS CSI driver
