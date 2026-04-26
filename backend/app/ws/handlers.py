@@ -21,7 +21,6 @@ from app.ws.connection_manager import manager
 from app.redis_client import get_redis
 from app.config import settings
 from app.utils.colors import user_color
-from app.utils.language import language_from_path
 
 logger = logging.getLogger(__name__)
 PRESENCE_TTL = 30

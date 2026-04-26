@@ -101,8 +101,10 @@ async def _run_rust(code: str) -> RunResponse:
         return await _exec([out])
     finally:
         for p in [src, out]:
-            try: os.unlink(p)
-            except FileNotFoundError: pass
+            try:
+                os.unlink(p)
+            except FileNotFoundError:
+                pass
 
 
 async def _run_c(code: str) -> RunResponse:
@@ -145,8 +147,10 @@ async def _run_csharp(code: str) -> RunResponse:
         return await _exec(["mono", out])
     finally:
         for p in [src, out]:
-            try: os.unlink(p)
-            except FileNotFoundError: pass
+            try:
+                os.unlink(p)
+            except FileNotFoundError:
+                pass
 
 
 # ── helpers ──────────────────────────────────────────────────────────────────
@@ -165,8 +169,10 @@ async def _compile_and_run(code: str, ext: str, compile_cmd_template: list[str])
         return await _exec([out])
     finally:
         for p in [src, out]:
-            try: os.unlink(p)
-            except FileNotFoundError: pass
+            try:
+                os.unlink(p)
+            except FileNotFoundError:
+                pass
 
 
 async def _run_in_file(cmd: list[str], ext: str, code: str, **_) -> RunResponse:
@@ -176,8 +182,10 @@ async def _run_in_file(cmd: list[str], ext: str, code: str, **_) -> RunResponse:
     try:
         return await _exec(cmd + [path])
     finally:
-        try: os.unlink(path)
-        except FileNotFoundError: pass
+        try:
+            os.unlink(path)
+        except FileNotFoundError:
+            pass
 
 
 async def _exec(cmd: list[str], stdin: bytes | None = None, cwd: str | None = None) -> RunResponse:

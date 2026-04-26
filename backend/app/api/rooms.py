@@ -7,7 +7,6 @@ from app.database import get_db
 from app.models.room import Room
 from app.models.file import File
 from app.schemas.room import RoomCreate, RoomResponse, RoomUpdate
-from app.utils.language import language_from_path
 
 router = APIRouter(prefix="/api/rooms", tags=["rooms"])
 

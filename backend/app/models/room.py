@@ -1,10 +1,17 @@
+from __future__ import annotations
+
 from datetime import datetime
+from typing import TYPE_CHECKING
 from sqlalchemy import String, Text, Integer, DateTime, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 import uuid
 
 from app.database import Base
+
+if TYPE_CHECKING:
+    from app.models.operation import Operation
+    from app.models.file import File
 
 
 class Room(Base):
